@@ -15,15 +15,17 @@ export default class Router {
   }
 
   match(path: string) {
-    if (path.startsWith(this.basePath)) {
-      return true
-    }
-    return false
+    return path.startsWith(this.basePath)
   }
 
   findRoute(path: string, method: TCRUDMethod) {
-    return this.routes.find(
-      (route) => this.basePath + route.path === path && route.method === method
-    )
+    const restPath = path.slice(this.basePath.length)
+    for (const route of this.routes) {
+      const params = route.match(restPath, method)
+      if (params) {
+        return { route, params }
+      }
+    }
+    return null
   }
 }

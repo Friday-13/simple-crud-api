@@ -2,13 +2,17 @@ import { IncomingMessage, ServerResponse } from "node:http"
 import HttpError from "../errors/http-error"
 import { ISendResponse } from "../utils/send-response"
 import TCRUDMethod from "../types/crud-method"
+import PathParamsError from "../errors/path-param-error"
+import getPathParams from "../utils/get-path-params"
 type TRouteHandler = ({
   req,
   res,
+  params,
 }: {
   req: IncomingMessage
   res: ServerResponse
-}) => ISendResponse
+  params?: Record<string, string>
+}) => Promise<ISendResponse> | ISendResponse
 
 interface IRoute {
   path: string
@@ -27,9 +31,13 @@ export default class Route {
     this.handlerCore = handlerCore
   }
 
-  handler(req: IncomingMessage, res: ServerResponse): ISendResponse {
+  async handler(
+    req: IncomingMessage,
+    res: ServerResponse,
+    params: Record<string, string>
+  ): Promise<ISendResponse> {
     try {
-      const responseContent = this.handlerCore({ req, res })
+      const responseContent = await this.handlerCore({ req, res, params })
       return responseContent
     } catch (err) {
       if (err instanceof HttpError) {
@@ -40,5 +48,14 @@ export default class Route {
     }
   }
 
-  // match(testPath: string, testMethod: TCRUDMethod) {}
+  match(testPath: string, testMethod: TCRUDMethod) {
+    if (this.method !== testMethod) return false
+    try {
+      const params = getPathParams(this.path, testPath)
+      return params
+    } catch (err) {
+      if (err instanceof PathParamsError) return false
+      throw err
+    }
+  }
 }

@@ -17,7 +17,15 @@ export default class App {
         return { code: 200, message: "Users list", res: res }
       },
     })
+    const postUsers = new Route({
+      path: "/{id}",
+      method: "POST",
+      handlerCore: ({ res }) => {
+        return { code: 201, message: "User posted", res: res }
+      },
+    })
     userRouter.addRoute(getUsers)
+    userRouter.addRoute(postUsers)
     server.addRouter(testRouter)
     server.start()
     process.on("SIGINT", () => this.stop(server))

@@ -22,9 +22,7 @@ export default class Server {
 
   start() {
     this.server.listen(this.port)
-    this.server.on("request", (req, res) => {
-      this.routeRequest(req, res)
-    })
+    this.server.on("request", this.routeRequest.bind(this))
     this.server.on("connect", () => console.log("Connected"))
   }
 
@@ -32,20 +30,41 @@ export default class Server {
     this.routers.push(newRouter)
   }
 
-  routeRequest(req: IncomingMessage, res: ServerResponse) {
+  async routeRequest(req: IncomingMessage, res: ServerResponse) {
+    try {
+      await this.handleRequest(req, res)
+    } catch (err) {
+      if (err instanceof HttpError) {
+        sendResponse({ res, code: err.code, message: err.message })
+      } else if (err instanceof Error) {
+        sendResponse({ res, code: 500, message: err.message })
+      } else {
+        sendResponse({ res, code: 500, message: String(err) })
+      }
+    }
+  }
+
+  async handleRequest(req: IncomingMessage, res: ServerResponse) {
     const path = req.url ? req.url : "/"
-    const method = req.method as TCRUDMethod | undefined
+    const method = req.method?.toUpperCase() as TCRUDMethod | undefined
+
     if (!method) {
-      throw new HttpError(405, "Method empty")
+      throw new HttpError(405, "Method not allowed")
     }
-    const matchedRouter = this.routers.find((router) => router.match(path))
-    const matchedRoute = matchedRouter?.findRoute(path, method)
-    const responseContent = matchedRoute?.handler(req, res)
-    if (responseContent) {
-      sendResponse(responseContent)
-    } else {
-      sendResponse({ res: res, code: 404, message: "Page not found" })
+
+    for (const router of this.routers) {
+      if (!router.match(path)) continue
+
+      const match = router.findRoute(path, method)
+
+      if (match) {
+        const { route, params } = match
+        const responseContent = await route.handler(req, res, params)
+        sendResponse(responseContent)
+        return
+      }
     }
+    throw new HttpError(404, `Page not found for path ${path}`)
   }
 
   close() {
