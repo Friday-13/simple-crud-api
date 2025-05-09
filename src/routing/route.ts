@@ -1,14 +1,21 @@
 import { IncomingMessage, ServerResponse } from "node:http"
 import HttpError from "../errors/http-error"
-import sendResponse from "../utils/send-response"
-type TCRUDMethod = "GET" | "POST" | "PUT" | "DELETE"
-type TRouteHandler = (req: IncomingMessage, res: ServerResponse) => void
+import { ISendResponse } from "../utils/send-response"
+import TCRUDMethod from "../types/crud-method"
+type TRouteHandler = ({
+  req,
+  res,
+}: {
+  req: IncomingMessage
+  res: ServerResponse
+}) => ISendResponse
 
 interface IRoute {
   path: string
   method: TCRUDMethod
   handlerCore: TRouteHandler
 }
+
 export default class Route {
   path: string
   method: TCRUDMethod
@@ -20,19 +27,18 @@ export default class Route {
     this.handlerCore = handlerCore
   }
 
-  handler(req: IncomingMessage, res: ServerResponse) {
+  handler(req: IncomingMessage, res: ServerResponse): ISendResponse {
     try {
-      this.handlerCore(req, res)
+      const responseContent = this.handlerCore({ req, res })
+      return responseContent
     } catch (err) {
       if (err instanceof HttpError) {
-        sendResponse({
-          res: res,
-          code: err.code,
-          message: err.message,
-        })
+        return { code: err.code, message: err.message, res: res }
       } else {
-        throw err;
+        throw err
       }
     }
   }
+
+  // match(testPath: string, testMethod: TCRUDMethod) {}
 }

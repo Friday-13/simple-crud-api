@@ -1,6 +1,6 @@
 import { ServerResponse } from "node:http"
 
-interface ISendResponse {
+export interface ISendResponse {
   res: ServerResponse
   code: number
   message: string
