@@ -1,70 +1,12 @@
-import { IUser, IUserData } from "../db/user-repository"
-import HttpError from "../errors/http-error"
-import Route from "../routing/route"
 import Router from "../routing/router"
-import getRequestBody from "../utils/get-request-body"
+import createUser from "./create-user"
+import deleteUser from "./delete-user"
+import getUser from "./get-user"
+import getUsers from "./get-users"
+import updateUser from "./update-user"
 
 export const userRouter = new Router("/users")
 
-const getUsers = new Route({
-  path: "",
-  method: "GET",
-  handlerCore: ({ res, db }) => {
-    const users = db.getTable("users").getAll()
-    return { code: 200, message: JSON.stringify(users), res: res }
-  },
-})
-
-const getUser = new Route({
-  path: "/{id}",
-  method: "GET",
-  handlerCore: ({ res, db, params }) => {
-    if (!params) throw new HttpError(400, "Id required")
-    const id = params["id"]
-    const user = db.getTable("users").getById(id)
-    if (!user) throw new HttpError(404,`User with id ${id} doesn't exist`)
-    return { code: 200, message: JSON.stringify(user), res: res }
-  },
-})
-
-const createUser = new Route({
-  path: "",
-  method: "POST",
-  handlerCore: async ({ req, res, db }) => {
-    const body = await getRequestBody(req)
-    const userData = body as IUserData
-    const user = db.getTable("users").create(userData)
-    return { code: 201, message: JSON.stringify(user), res: res }
-  },
-})
-
-const updateUser = new Route({
-  path: "/{id}",
-  method: "PUT",
-  handlerCore: async ({ req, res, params, db }) => {
-    if (!params) throw new HttpError(400, "Id required")
-    const id = params["id"]
-
-    const body = await getRequestBody(req)
-    const userData = body as IUserData
-
-    const user = db.getTable("users").update({ id, ...userData })
-    return { code: 200, message: JSON.stringify(user), res: res }
-  },
-})
-
-
-const deleteUser = new Route({
-  path: "/{id}",
-  method: "DELETE",
-  handlerCore: async ({ res, params, db }) => {
-    if (!params) throw new HttpError(400, "Id required")
-    const id = params["id"]
-
-    db.getTable("users").delete(id)
-    return { code: 204, message: "OK", res: res }
-  },
-})
 userRouter.addRoute(getUsers)
 userRouter.addRoute(getUser)
 userRouter.addRoute(createUser)

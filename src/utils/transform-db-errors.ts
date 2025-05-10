@@ -9,4 +9,4 @@ const transformDbErrors = (err: Error) => {
   }
 }
 
-export {transformDbErrors as default};
+export { transformDbErrors as default }

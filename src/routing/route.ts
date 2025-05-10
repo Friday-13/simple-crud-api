@@ -1,5 +1,4 @@
 import { IncomingMessage, ServerResponse } from "node:http"
-import HttpError from "../errors/http-error"
 import { ISendResponse } from "../utils/send-response"
 import TCRUDMethod from "../types/crud-method"
 import PathParamsError from "../errors/path-param-error"
