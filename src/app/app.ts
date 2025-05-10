@@ -23,7 +23,9 @@ export default class App {
 
   startSingleServer() {
     const db = createInMemoryDb()
-    const server = new Server(4000, () => Promise.resolve(db))
+    const port = Number(process.env.PORT_NUMBER) || 4000;
+    console.log(port);
+    const server = new Server(port, () => Promise.resolve(db))
     server.addRouter(userRouter)
     server.start()
     return server
