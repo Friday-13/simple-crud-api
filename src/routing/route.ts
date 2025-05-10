@@ -5,6 +5,8 @@ import TCRUDMethod from "../types/crud-method"
 import PathParamsError from "../errors/path-param-error"
 import getPathParams from "../utils/get-path-params"
 import { TDataBase } from "../db/create-db"
+import DbError from "../errors/db-error"
+import transformDbErrors from "../utils/transform-db-errors"
 type TRouteHandler = ({
   req,
   res,
@@ -44,8 +46,8 @@ export default class Route {
       const responseContent = await this.handlerCore({ req, res, params, db })
       return responseContent
     } catch (err) {
-      if (err instanceof HttpError) {
-        return { code: err.code, message: err.message, res: res }
+      if (err instanceof DbError) {
+        throw transformDbErrors(err)
       } else {
         throw err
       }

@@ -22,6 +22,7 @@ const getUser = new Route({
     if (!params) throw new HttpError(400, "Id required")
     const id = params["id"]
     const user = db.getTable("users").getById(id)
+    if (!user) throw new HttpError(404,`User with id ${id} doesn't exist`)
     return { code: 200, message: JSON.stringify(user), res: res }
   },
 })

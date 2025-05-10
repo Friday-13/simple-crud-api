@@ -43,7 +43,7 @@ export class UserRepository extends RepositoryBase<UserModel> {
     this.validateUserWithId(userData)
     const user = this.getById(userData.id)
     if (!user)
-      throw new DbError("idErr", `User with ID ${userData.id} does not exist.`)
+      throw new DbError("recErr", `User with ID ${userData.id} does not exist.`)
     user.username = userData.username
     user.age = userData.age
     user.hobbies = userData.hobbies

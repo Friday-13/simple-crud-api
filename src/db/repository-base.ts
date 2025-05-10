@@ -22,8 +22,9 @@ export default abstract class RepositoryBase<T extends IBaseModel> {
 
   delete(id?: string) {
     this.validateId(id)
-    const userIndex = this.records.findIndex((record) => record.id === id)
-    this.records.splice(userIndex, 1)
+    const recordIndex = this.records.findIndex((record) => record.id === id)
+    if (recordIndex === -1) throw new DbError("recErr", `ID ${id} doesn't exist`)
+    this.records.splice(recordIndex, 1)
     return true
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
