@@ -3,17 +3,14 @@ import { v4 as uuidv4 } from "uuid"
 import RepositoryBase from "./repository-base"
 import DbError from "../errors/db-error"
 
-interface ICreateUser {
+export interface IUserData {
   username: string
   age: number
   hobbies: string[]
 }
 
-export interface IUser {
+export interface IUser extends IUserData {
   id: string
-  username: string
-  age: number
-  hobbies: string[]
 }
 
 export class UserModel implements IBaseModel {
@@ -22,7 +19,7 @@ export class UserModel implements IBaseModel {
   age: number
   hobbies: string[]
 
-  constructor({ username, age, hobbies }: ICreateUser) {
+  constructor({ username, age, hobbies }: IUserData) {
     this.id = uuidv4()
     this.username = username
     this.age = age
@@ -35,7 +32,7 @@ export class UserRepository extends RepositoryBase<UserModel> {
     super("users")
   }
 
-  create(userData: ICreateUser) {
+  create(userData: IUserData) {
     this.validateUser(userData)
     const user = new UserModel(userData)
     this.records.push(user)
@@ -77,7 +74,7 @@ export class UserRepository extends RepositoryBase<UserModel> {
       throw new DbError("inputErr", "Hobbies must be array of string")
   }
 
-  validateUser(user: Partial<IUser>): asserts user is IUser {
+  validateUser(user: Partial<IUser>): asserts user is IUserData {
     this.validateUsername(user.username)
     this.validateAge(user.age)
     this.validateHobbies(user.hobbies)

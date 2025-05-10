@@ -1,4 +1,4 @@
-import { IUser } from "../db/user-repository"
+import { IUser, IUserData } from "../db/user-repository"
 import HttpError from "../errors/http-error"
 import Route from "../routing/route"
 import Router from "../routing/router"
@@ -31,11 +31,28 @@ const createUser = new Route({
   method: "POST",
   handlerCore: async ({ req, res, db }) => {
     const body = await getRequestBody(req)
-    const userData = body as IUser
+    const userData = body as IUserData
     const user = db.getTable("users").create(userData)
     return { code: 201, message: JSON.stringify(user), res: res }
   },
 })
+
+const updateUser = new Route({
+  path: "/{id}",
+  method: "POST",
+  handlerCore: async ({ req, res, params, db }) => {
+    if (!params) throw new HttpError(400, "Id required")
+    const id = params["id"]
+
+    const body = await getRequestBody(req)
+    const userData = body as IUserData
+
+    const user = db.getTable("users").update({ id, ...userData })
+    return { code: 201, message: JSON.stringify(user), res: res }
+  },
+})
+
 userRouter.addRoute(getUsers)
 userRouter.addRoute(getUser)
 userRouter.addRoute(createUser)
+userRouter.addRoute(updateUser)
