@@ -20,9 +20,11 @@ export default abstract class RepositoryBase<T extends IBaseModel> {
     return this.records
   }
 
-  delete(id: string) {
+  delete(id?: string) {
+    this.validateId(id)
     const userIndex = this.records.findIndex((record) => record.id === id)
     this.records.splice(userIndex, 1)
+    return true
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract update(data: any): T | null

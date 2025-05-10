@@ -22,7 +22,7 @@ const getUser = new Route({
     if (!params) throw new HttpError(400, "Id required")
     const id = params["id"]
     const user = db.getTable("users").getById(id)
-    return { code: 201, message: JSON.stringify(user), res: res }
+    return { code: 200, message: JSON.stringify(user), res: res }
   },
 })
 
@@ -39,7 +39,7 @@ const createUser = new Route({
 
 const updateUser = new Route({
   path: "/{id}",
-  method: "POST",
+  method: "PUT",
   handlerCore: async ({ req, res, params, db }) => {
     if (!params) throw new HttpError(400, "Id required")
     const id = params["id"]
@@ -48,11 +48,24 @@ const updateUser = new Route({
     const userData = body as IUserData
 
     const user = db.getTable("users").update({ id, ...userData })
-    return { code: 201, message: JSON.stringify(user), res: res }
+    return { code: 200, message: JSON.stringify(user), res: res }
   },
 })
 
+
+const deleteUser = new Route({
+  path: "/{id}",
+  method: "DELETE",
+  handlerCore: async ({ res, params, db }) => {
+    if (!params) throw new HttpError(400, "Id required")
+    const id = params["id"]
+
+    db.getTable("users").delete(id)
+    return { code: 204, message: "OK", res: res }
+  },
+})
 userRouter.addRoute(getUsers)
 userRouter.addRoute(getUser)
 userRouter.addRoute(createUser)
 userRouter.addRoute(updateUser)
+userRouter.addRoute(deleteUser)
