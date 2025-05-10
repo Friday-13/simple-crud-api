@@ -9,7 +9,7 @@ type TRouteHandler = ({
   req,
   res,
   params,
-  db
+  db,
 }: {
   req: IncomingMessage
   res: ServerResponse

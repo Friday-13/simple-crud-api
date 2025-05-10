@@ -8,7 +8,7 @@ import Router from "../routing/router"
 import sendResponse from "../utils/send-response"
 import HttpError from "../errors/http-error"
 import RequestHandler from "./resuest-handler"
-import  { TDbGetter, } from "../db/create-db"
+import { TDbGetter } from "../db/create-db"
 
 export default class Server {
   server: HttpServer
@@ -20,7 +20,7 @@ export default class Server {
     this.server = createServer()
     this.port = port
     this.requestHandler = new RequestHandler([])
-    this.getDb = getDb;
+    this.getDb = getDb
   }
 
   start() {

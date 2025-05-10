@@ -15,7 +15,7 @@ const getPathParams = (pattern: string, path: string) => {
     const patternPart = patternParts[i]
 
     if (patternPart && pathPart && patternPart.startsWith("{")) {
-      const paramName = patternPart.slice(0, -1)
+      const paramName = patternPart.slice(1, -1)
       params[paramName] = pathPart
     } else if (patternPart !== pathPart) {
       throw new PathParamsError("Path and given pattern don't match")

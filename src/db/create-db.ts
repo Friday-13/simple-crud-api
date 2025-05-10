@@ -12,6 +12,6 @@ const createInMemoryDb = () => {
 
 export type TDataBase = ReturnType<typeof createInMemoryDb>
 export type TDbPromise = Promise<TDataBase>
-export type TDbGetter = () => TDbPromise;
+export type TDbGetter = () => TDbPromise
 
 export { createInMemoryDb as default }

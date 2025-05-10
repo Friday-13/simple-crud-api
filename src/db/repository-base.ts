@@ -11,8 +11,9 @@ export default abstract class RepositoryBase<T extends IBaseModel> {
     this.records = []
   }
 
-  getById(id: string) {
-    return this.records.find((record) => record.id === id) || null; 
+  getById(id?: string) {
+    this.validateId(id)
+    return this.records.find((record) => record.id === id) || null
   }
 
   getAll() {
@@ -30,7 +31,7 @@ export default abstract class RepositoryBase<T extends IBaseModel> {
 
   validateId(id?: string): asserts id is string {
     if (!validate(id)) {
-      throw new DbError("idErr", "Invalid id")
+      throw new DbError("idErr", `Invalid id ${id}`)
     }
   }
 }

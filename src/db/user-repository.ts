@@ -9,7 +9,7 @@ interface ICreateUser {
   hobbies: string[]
 }
 
-interface IUser {
+export interface IUser {
   id: string
   username: string
   age: number
@@ -36,7 +36,7 @@ export class UserRepository extends RepositoryBase<UserModel> {
   }
 
   create(userData: ICreateUser) {
-    this.validateUser(userData);
+    this.validateUser(userData)
     const user = new UserModel(userData)
     this.records.push(user)
     return user
@@ -84,6 +84,6 @@ export class UserRepository extends RepositoryBase<UserModel> {
   }
   validateUserWithId(user: Partial<IUser>): asserts user is IUser {
     this.validateId(user.id)
-    this.validateUser(user);
+    this.validateUser(user)
   }
 }
