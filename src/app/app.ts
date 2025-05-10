@@ -9,9 +9,9 @@ export default class App {
   start() {
     const args = getProcessArgs()
     const mode = args.has("multi") ? "multi" : "single"
-    let server;
+    let server
     if (mode === "multi") {
-      console.log("Multi mode");
+      console.log("Multi mode")
     }
     {
       server = this.startSingleServer()
