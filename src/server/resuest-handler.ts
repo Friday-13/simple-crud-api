@@ -1,3 +1,4 @@
+import { TDbGetter } from "../db/create-db"
 import HttpError from "../errors/http-error"
 import Router from "../routing/router"
 import TCRUDMethod from "../types/crud-method"
@@ -10,7 +11,7 @@ export default class RequestHandler {
     this.routers = routers
   }
 
-  async handleRequest(req: IncomingMessage, res: ServerResponse) {
+  async handleRequest(req: IncomingMessage, res: ServerResponse, getDb: TDbGetter) {
     const path = req.url ? req.url : "/"
     const method = req.method?.toUpperCase() as TCRUDMethod | undefined
 
@@ -25,7 +26,8 @@ export default class RequestHandler {
 
       if (match) {
         const { route, params } = match
-        const responseContent = await route.handler(req, res, params)
+        const db = await getDb();
+        const responseContent = await route.handler(req, res, params, db)
         sendResponse(responseContent)
         return
       }

@@ -1,3 +1,4 @@
+import createInMemoryDb from "../db/create-db"
 import Route from "../routing/route"
 import Router from "../routing/router"
 import Server from "../server/server"
@@ -22,14 +23,15 @@ export default class App {
   }
 
   startSingleServer() {
-    const server = new Server(4000)
+    const db = createInMemoryDb();
+    const server = new Server(4000, () => Promise.resolve(db))
     const userRouter = new Router("/users")
     const testRouter = new Router("/tests")
     server.addRouter(userRouter)
     const getUsers = new Route({
       path: "",
       method: "GET",
-      handlerCore: ({ res }) => {
+      handlerCore: ({ res}) => {
         return { code: 200, message: "Users list", res: res }
       },
     })

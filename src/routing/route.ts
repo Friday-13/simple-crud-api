@@ -4,14 +4,17 @@ import { ISendResponse } from "../utils/send-response"
 import TCRUDMethod from "../types/crud-method"
 import PathParamsError from "../errors/path-param-error"
 import getPathParams from "../utils/get-path-params"
+import { TDataBase } from "../db/create-db"
 type TRouteHandler = ({
   req,
   res,
   params,
+  db
 }: {
   req: IncomingMessage
   res: ServerResponse
   params?: Record<string, string>
+  db: TDataBase
 }) => Promise<ISendResponse> | ISendResponse
 
 interface IRoute {
@@ -34,10 +37,11 @@ export default class Route {
   async handler(
     req: IncomingMessage,
     res: ServerResponse,
-    params: Record<string, string>
+    params: Record<string, string>,
+    db: TDataBase
   ): Promise<ISendResponse> {
     try {
-      const responseContent = await this.handlerCore({ req, res, params })
+      const responseContent = await this.handlerCore({ req, res, params, db })
       return responseContent
     } catch (err) {
       if (err instanceof HttpError) {
