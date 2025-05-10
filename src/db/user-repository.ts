@@ -1,6 +1,7 @@
 import IBaseModel from "./ibase-model"
 import { v4 as uuidv4 } from "uuid"
 import RepositoryBase from "./repository-base"
+import DbError from "../errors/db-error"
 
 interface ICreateUser {
   username: string
@@ -8,11 +9,11 @@ interface ICreateUser {
   hobbies: string[]
 }
 
-interface IUpdateUser {
+interface IUser {
   id: string
-  username?: string
-  age?: number
-  hobbies?: string[]
+  username: string
+  age: number
+  hobbies: string[]
 }
 
 export class UserModel implements IBaseModel {
@@ -34,20 +35,55 @@ export class UserRepository extends RepositoryBase<UserModel> {
     super("users")
   }
 
-  create({ username, age, hobbies }: ICreateUser) {
-    const user = new UserModel({ username, age, hobbies })
+  create(userData: ICreateUser) {
+    this.validateUser(userData);
+    const user = new UserModel(userData)
     this.records.push(user)
     return user
   }
 
-  update({ id, username, age, hobbies }: IUpdateUser) {
-    const user = this.getById(id)
-    if (user) {
-      if (username) user.username = username
-      if (age) user.age = age
-      if (hobbies) user.hobbies = hobbies
-      return user
-    }
-    return null
+  update(userData: Partial<IUser>) {
+    this.validateUserWithId(userData)
+    const user = this.getById(userData.id)
+    if (!user)
+      throw new DbError("idErr", `User with ID ${userData.id} does not exist.`)
+    user.username = userData.username
+    user.age = userData.age
+    user.hobbies = userData.hobbies
+    return user
+  }
+
+  validateUsername(username?: string): asserts username is string {
+    if (username === undefined)
+      throw new DbError("inputErr", "Username must be defined")
+    if (username.length <= 3)
+      throw new DbError("inputErr", "Username must be longer than 3 characters")
+  }
+
+  validateAge(age?: number): asserts age is number {
+    if (age === undefined || isNaN(age))
+      throw new DbError("inputErr", "Age must be a number")
+    if (age < 0) throw new DbError("inputErr", "Age cannot be negative")
+    if (age > 120)
+      throw new DbError("inputErr", "Age cannot be greater than 120")
+  }
+
+  validateHobbies(hobbies?: string[]): asserts hobbies is string[] {
+    if (hobbies === undefined)
+      throw new DbError("inputErr", "Hobbies must be defined")
+    if (!Array.isArray(hobbies))
+      throw new DbError("inputErr", "Hobbies must be array of string")
+    if (!hobbies.every((hobbie) => typeof hobbie === "string"))
+      throw new DbError("inputErr", "Hobbies must be array of string")
+  }
+
+  validateUser(user: Partial<IUser>): asserts user is IUser {
+    this.validateUsername(user.username)
+    this.validateAge(user.age)
+    this.validateHobbies(user.hobbies)
+  }
+  validateUserWithId(user: Partial<IUser>): asserts user is IUser {
+    this.validateId(user.id)
+    this.validateUser(user);
   }
 }
