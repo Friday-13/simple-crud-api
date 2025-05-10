@@ -19,7 +19,9 @@
     "prepare": "npm run format; npm run lint",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node-dev --respawn --transpile-only' src/index.ts",
-    "start:prod": "webpack --mode=production && node dist/bundle.js"
+    "start:prod": "webpack --mode=production && node dist/bundle.js",
+    "start:multi": "nodemon --watch 'src/**/*.ts' --exec 'ts-node-dev --respawn --transpile-only' src/index.ts -- --multi",
+    "start:prod:multi": "webpack --mode=production && node dist/bundle.js -- --multi"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
