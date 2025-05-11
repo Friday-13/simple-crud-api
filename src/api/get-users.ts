@@ -5,7 +5,7 @@ const getUsers = new Route({
   method: "GET",
   handlerCore: ({ res, db }) => {
     const users = db.getAll()
-    return { code: 200, message: JSON.stringify(users), res: res }
+    return { code: 200, message: users, res: res }
   },
 })
 

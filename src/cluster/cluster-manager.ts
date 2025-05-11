@@ -1,0 +1,109 @@
+import cluster, { Worker } from "node:cluster"
+import getDb from "../utils/get-db"
+import { createServer } from "node:http"
+import sendResponse from "../utils/send-response"
+import { URL } from "node:url"
+import Server from "../server/server"
+import { userRouter } from "../api/users"
+import getRequestBody from "../utils/get-request-body"
+
+export default class ClusterManager {
+  workerNumber: number
+  primaryPort: number
+  constructor() {
+    this.workerNumber = 3
+    this.primaryPort = Number(process.env.PORT_NUMBER) || 4000
+  }
+
+  start() {
+    if (cluster.isPrimary) {
+      this.startPrimaryServer()
+      for (let i = 0; i < this.workerNumber; i += 1) {
+        const worker = cluster.fork({ WORKER_PORT: this.primaryPort + i + 1 })
+        this.listenWorker(worker);
+      }
+    } else {
+      const workerPort = Number(process.env.WORKER_PORT)
+      if (workerPort) {
+        console.log(`I'm worker ${workerPort}`)
+        this.startWorkerServer(workerPort)
+      }
+    }
+  }
+
+  startPrimaryServer() {
+    const primaryServer = createServer()
+    primaryServer.listen(this.primaryPort)
+    let i = 1
+    primaryServer.on("request", async (req, res) => {
+      if (req.url && req.method) {
+        const url = new URL(
+          req.url,
+          `http://${process.env.HOST}:${this.primaryPort + i}`
+        )
+        const body = await getRequestBody(req);
+        console.log(body);
+        const workerResponse = await fetch(url.href, {
+          method: req.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        })
+        const data = await workerResponse.json();
+        sendResponse({res, code: workerResponse.status, message: data})
+        i = i === this.workerNumber ? 1 : i + 1
+      }
+    })
+    process.on("SIGINT", () => primaryServer.close())
+    process.on("exit", () => primaryServer.close())
+    process.on("SIGTERM", () => primaryServer.close())
+  }
+
+  startWorkerServer(port: number) {
+    const workerServer = new Server(port)
+    workerServer.addRouter(userRouter)
+    workerServer.start()
+    process.on("SIGINT", () => workerServer.close())
+    process.on("exit", () => workerServer.close())
+    process.on("SIGTERM", () => workerServer.close())
+  }
+
+  listenWorker(worker: Worker) {
+    worker.on("message", async (message) => {
+      try {
+        const content = message as Record<string, unknown>
+        if (content["request"] === "db") {
+          const db = await getDb()
+          worker.send({ db: db })
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    })
+  }
+
+  // start() {
+  //   if (cluster.isPrimary) {
+  //     console.log("I'm primary!")
+  //     for (let i = 0; i < 1; i += 1) {
+  //       const worker = cluster.fork()
+  //       worker.on("message", async (message) => {
+  //         try {
+  //           const content = message as Record<string, unknown>
+  //           if (content["request"] === "db") {
+  //             const db = await getDb()
+  //             worker.send({ db: db })
+  //           }
+  //         } catch (err) {
+  //           console.log(err)
+  //         }
+  //       })
+  //     }
+  //   } else {
+  //     console.log("I'm worker!")
+  //     setInterval(async () => {
+  //       const db = await getDb()
+  //       console.log(db.getAll())
+  //     }, 2000)
+  //   }
+  // }
+}

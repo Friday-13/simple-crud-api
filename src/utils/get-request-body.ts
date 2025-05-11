@@ -4,6 +4,10 @@ const getRequestBody = async (req: IncomingMessage) => {
     let body = ""
     req.on("data", (chunk) => (body += chunk))
     req.on("end", () => {
+      if (body === "") {
+        resolve(undefined);
+        return;
+      }
       try {
         const json = JSON.parse(body)
         resolve(json)
