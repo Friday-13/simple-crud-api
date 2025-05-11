@@ -6,17 +6,18 @@ import getPathParams from "../utils/get-path-params"
 import { TDataBase } from "../db/create-db"
 import DbError from "../errors/db-error"
 import transformDbErrors from "../utils/transform-db-errors"
-type TRouteHandler = ({
-  req,
-  res,
-  params,
-  db,
-}: {
+import getDb from "../utils/get-db"
+
+interface IRoutehandler {
   req: IncomingMessage
   res: ServerResponse
   params?: Record<string, string>
   db: TDataBase
-}) => Promise<ISendResponse> | ISendResponse
+}
+
+type TRouteHandler = (
+  params: IRoutehandler
+) => Promise<ISendResponse> | ISendResponse
 
 interface IRoute {
   path: string
@@ -38,10 +39,10 @@ export default class Route {
   async handler(
     req: IncomingMessage,
     res: ServerResponse,
-    params: Record<string, string>,
-    db: TDataBase
+    params: Record<string, string>
   ): Promise<ISendResponse> {
     try {
+      const db = await getDb()
       const responseContent = await this.handlerCore({ req, res, params, db })
       return responseContent
     } catch (err) {

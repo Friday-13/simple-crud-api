@@ -1,16 +1,13 @@
 import { userRouter } from "../api/users"
-import createInMemoryDb from "../db/create-db"
 import Server from "../server/server"
-import getProcessArgs from "../utils/get-process-args"
+import { isMulti } from "../utils/work-mode"
 
 export default class App {
   constructor() {}
 
   start() {
-    const args = getProcessArgs()
-    const mode = args.has("multi") ? "multi" : "single"
     let server
-    if (mode === "multi") {
+    if (isMulti()) {
       console.log("Multi mode")
     }
     {
@@ -22,10 +19,9 @@ export default class App {
   }
 
   startSingleServer() {
-    const db = createInMemoryDb()
-    const port = Number(process.env.PORT_NUMBER) || 4000;
-    console.log(port);
-    const server = new Server(port, () => Promise.resolve(db))
+    const port = Number(process.env.PORT_NUMBER) || 4000
+    console.log(port)
+    const server = new Server(port)
     server.addRouter(userRouter)
     server.start()
     return server

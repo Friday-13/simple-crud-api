@@ -8,19 +8,16 @@ import Router from "../routing/router"
 import sendResponse from "../utils/send-response"
 import HttpError from "../errors/http-error"
 import RequestHandler from "./resuest-handler"
-import { TDbGetter } from "../db/create-db"
 
 export default class Server {
   server: HttpServer
   port: number
   requestHandler: RequestHandler
-  getDb: TDbGetter
 
-  constructor(port: number, getDb: TDbGetter) {
+  constructor(port: number) {
     this.server = createServer()
     this.port = port
     this.requestHandler = new RequestHandler([])
-    this.getDb = getDb
   }
 
   start() {
@@ -35,7 +32,7 @@ export default class Server {
 
   async routeRequest(req: IncomingMessage, res: ServerResponse) {
     try {
-      await this.requestHandler.handleRequest(req, res, this.getDb)
+      await this.requestHandler.handleRequest(req, res)
     } catch (err) {
       if (err instanceof HttpError) {
         sendResponse({ res, code: err.code, message: err.message })
