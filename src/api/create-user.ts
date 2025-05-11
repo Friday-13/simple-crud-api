@@ -9,7 +9,7 @@ const createUser = new Route({
     const body = await getRequestBody(req)
     const userData = body as IUserData
     const user = db.create(userData)
-    return { code: 201, message: JSON.stringify(user), res: res }
+    return { code: 201, message: user, res: res }
   },
 })
 

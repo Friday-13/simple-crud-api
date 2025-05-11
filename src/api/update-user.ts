@@ -14,7 +14,7 @@ const updateUser = new Route({
     const userData = body as IUserData
 
     const user = db.update({ id, ...userData })
-    return { code: 200, message: JSON.stringify(user), res: res }
+    return { code: 200, message: user, res: res }
   },
 })
 

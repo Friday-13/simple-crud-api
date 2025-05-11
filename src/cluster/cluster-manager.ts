@@ -6,6 +6,7 @@ import { URL } from "node:url"
 import Server from "../server/server"
 import { userRouter } from "../api/users"
 import getRequestBody from "../utils/get-request-body"
+import IPrimaryResponse from "./iprimary-response"
 
 export default class ClusterManager {
   workerNumber: number
@@ -20,7 +21,7 @@ export default class ClusterManager {
       this.startPrimaryServer()
       for (let i = 0; i < this.workerNumber; i += 1) {
         const worker = cluster.fork({ WORKER_PORT: this.primaryPort + i + 1 })
-        this.listenWorker(worker);
+        this.listenWorker(worker)
       }
     } else {
       const workerPort = Number(process.env.WORKER_PORT)
@@ -41,15 +42,16 @@ export default class ClusterManager {
           req.url,
           `http://${process.env.HOST}:${this.primaryPort + i}`
         )
-        const body = await getRequestBody(req);
-        console.log(body);
+        const body = await getRequestBody(req)
+        console.log(body)
         const workerResponse = await fetch(url.href, {
           method: req.method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         })
-        const data = await workerResponse.json();
-        sendResponse({res, code: workerResponse.status, message: data})
+        const data = await workerResponse.json()
+        console.log("response from worker port: ", this.primaryPort + i)
+        sendResponse({ res, code: workerResponse.status, message: data })
         i = i === this.workerNumber ? 1 : i + 1
       }
     })
@@ -71,9 +73,15 @@ export default class ClusterManager {
     worker.on("message", async (message) => {
       try {
         const content = message as Record<string, unknown>
-        if (content["request"] === "db") {
+        if (content["request"]) {
           const db = await getDb()
           worker.send({ db: db })
+        }
+        if (content["db"]) {
+          const workerMessage = message as IPrimaryResponse
+          const records = workerMessage.db
+          const db = await getDb()
+          db.records = records.records
         }
       } catch (err) {
         console.log(err)

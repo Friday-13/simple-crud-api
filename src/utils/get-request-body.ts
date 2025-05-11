@@ -5,8 +5,8 @@ const getRequestBody = async (req: IncomingMessage) => {
     req.on("data", (chunk) => (body += chunk))
     req.on("end", () => {
       if (body === "") {
-        resolve(undefined);
-        return;
+        resolve(undefined)
+        return
       }
       try {
         const json = JSON.parse(body)

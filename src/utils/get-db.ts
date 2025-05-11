@@ -13,7 +13,7 @@ const getDb = async (): Promise<TDataBase> => {
         reject(new Error("Process hasn't spawned like a child"))
         return
       }
-      process.send({ request: "db" })
+      process.send({ request: "getDb" })
       process.on("message", (message) => {
         try {
           const primaryResponse = message as IPrimaryResponse
