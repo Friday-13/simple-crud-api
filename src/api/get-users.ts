@@ -4,7 +4,7 @@ const getUsers = new Route({
   path: "",
   method: "GET",
   handlerCore: ({ res, db }) => {
-    const users = db.getTable("users").getAll()
+    const users = db.getAll()
     return { code: 200, message: JSON.stringify(users), res: res }
   },
 })

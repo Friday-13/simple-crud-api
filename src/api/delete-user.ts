@@ -8,7 +8,7 @@ const deleteUser = new Route({
     if (!params) throw new HttpError(400, "Id required")
     const id = params["id"]
 
-    db.getTable("users").delete(id)
+    db.delete(id)
     return { code: 204, message: "OK", res: res }
   },
 })

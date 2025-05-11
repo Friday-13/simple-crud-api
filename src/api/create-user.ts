@@ -8,7 +8,7 @@ const createUser = new Route({
   handlerCore: async ({ req, res, db }) => {
     const body = await getRequestBody(req)
     const userData = body as IUserData
-    const user = db.getTable("users").create(userData)
+    const user = db.create(userData)
     return { code: 201, message: JSON.stringify(user), res: res }
   },
 })
