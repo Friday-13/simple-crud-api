@@ -70,18 +70,18 @@ export default class ClusterManager {
         }
       }
     })
-    process.on("SIGINT", () => primaryServer.close())
+    process.on("SIGINT", () => {primaryServer.close(); process.exit(0)})
     process.on("exit", () => primaryServer.close())
-    process.on("SIGTERM", () => primaryServer.close())
+    process.on("SIGTERM", () => {primaryServer.close(); process.exit(0)})
   }
 
   startWorkerServer(port: number) {
     const workerServer = new Server(port)
     workerServer.addRouter(userRouter)
     workerServer.start()
-    process.on("SIGINT", () => workerServer.close())
+    process.on("SIGINT", () => {workerServer.close(); process.exit(0)});
     process.on("exit", () => workerServer.close())
-    process.on("SIGTERM", () => workerServer.close())
+    process.on("SIGTERM", () => {workerServer.close(); process.exit(0)});
   }
 
   listenWorker(worker: Worker) {
