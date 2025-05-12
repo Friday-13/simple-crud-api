@@ -5,7 +5,7 @@ import getUser from "./get-user"
 import getUsers from "./get-users"
 import updateUser from "./update-user"
 
-export const userRouter = new Router("/users")
+export const userRouter = new Router("/api/users")
 
 userRouter.addRoute(getUsers)
 userRouter.addRoute(getUser)

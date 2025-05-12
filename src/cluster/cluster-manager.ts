@@ -88,30 +88,4 @@ export default class ClusterManager {
       }
     })
   }
-
-  // start() {
-  //   if (cluster.isPrimary) {
-  //     console.log("I'm primary!")
-  //     for (let i = 0; i < 1; i += 1) {
-  //       const worker = cluster.fork()
-  //       worker.on("message", async (message) => {
-  //         try {
-  //           const content = message as Record<string, unknown>
-  //           if (content["request"] === "db") {
-  //             const db = await getDb()
-  //             worker.send({ db: db })
-  //           }
-  //         } catch (err) {
-  //           console.log(err)
-  //         }
-  //       })
-  //     }
-  //   } else {
-  //     console.log("I'm worker!")
-  //     setInterval(async () => {
-  //       const db = await getDb()
-  //       console.log(db.getAll())
-  //     }, 2000)
-  //   }
-  // }
 }
