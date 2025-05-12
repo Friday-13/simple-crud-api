@@ -13,8 +13,8 @@ const updateUser = new Route({
     const body = await getRequestBody(req)
     const userData = body as IUserData
 
-    const user = db.getTable("users").update({ id, ...userData })
-    return { code: 200, message: JSON.stringify(user), res: res }
+    const user = db.update({ id, ...userData })
+    return { code: 200, message: user, res: res }
   },
 })
 

@@ -7,6 +7,7 @@ import { TDataBase } from "../db/create-db"
 import DbError from "../errors/db-error"
 import transformDbErrors from "../utils/transform-db-errors"
 import getDb from "../utils/get-db"
+import syncDb from "../utils/sync-db"
 
 interface IRoutehandler {
   req: IncomingMessage
@@ -44,6 +45,7 @@ export default class Route {
     try {
       const db = await getDb()
       const responseContent = await this.handlerCore({ req, res, params, db })
+      syncDb(db)
       return responseContent
     } catch (err) {
       if (err instanceof DbError) {

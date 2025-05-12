@@ -1,4 +1,5 @@
 import { userRouter } from "../api/users"
+import ClusterManager from "../cluster/cluster-manager"
 import Server from "../server/server"
 import { isMulti } from "../utils/work-mode"
 
@@ -6,16 +7,15 @@ export default class App {
   constructor() {}
 
   start() {
-    let server
     if (isMulti()) {
-      console.log("Multi mode")
+      const cluster = new ClusterManager()
+      cluster.start()
+    } else {
+      const server = this.startSingleServer()
+      process.on("SIGINT", () => this.stop(server))
+      process.on("exit", () => this.stop(server))
+      process.on("SIGTERM", () => this.restart())
     }
-    {
-      server = this.startSingleServer()
-    }
-    process.on("SIGINT", () => this.stop(server))
-    process.on("exit", () => this.stop(server))
-    process.on("SIGTERM", () => this.restart())
   }
 
   startSingleServer() {
