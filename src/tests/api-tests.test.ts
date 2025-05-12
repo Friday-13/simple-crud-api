@@ -45,7 +45,7 @@ describe("check jest config", () => {
     }
     return data
   }
-  test("GET api/users -> []", async () => {
+  test("GET /api/users -> []", async () => {
     const res = await fetch(`${baseUrl}:${port}/api/users`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(200)
   })
 
-  test("GET api/users -> IUser[]", async () => {
+  test("GET /api/users -> IUser[]", async () => {
     await loadTestUsers()
     const res = await fetch(`${baseUrl}:${port}/api/users`, {
       method: "GET",
@@ -67,7 +67,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(200)
   })
 
-  test("GET api/users/{id} -> IUser", async () => {
+  test("GET /api/users/{id} -> IUser", async () => {
     await loadTestUsers()
     const userIndex = 3
     const testUser = getTestUser(userIndex)
@@ -80,7 +80,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(200)
   })
 
-  test("GET api/users/{invalid-id} -> 400 error", async () => {
+  test("GET /api/users/{invalid-id} -> 400 error", async () => {
     await loadTestUsers()
     const invalidId = "invalid-id"
     const res = await fetch(`${baseUrl}:${port}/api/users/${invalidId}`, {
@@ -90,7 +90,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(400)
   })
 
-  test("GET api/users/{non-existent id} -> 404 error", async () => {
+  test("GET /api/users/{non-existent id} -> 404 error", async () => {
     await loadTestUsers()
     const newUid = uuidv4()
     const res = await fetch(`${baseUrl}:${port}/api/users/${newUid}`, {
@@ -100,7 +100,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(404)
   })
 
-  test("POST api/users -> test user", async () => {
+  test("POST /api/users -> test user", async () => {
     const testUser = getTestUserData()
     const res = await fetch(`${baseUrl}:${port}/api/users`, {
       method: "POST",
@@ -114,7 +114,7 @@ describe("check jest config", () => {
     })
   })
 
-  test("POST api/users (with invalid data)-> 400 error", async () => {
+  test("POST /api/users (with invalid data)-> 400 error", async () => {
     const testUser = getTestUserData()
     const invalidUser: Partial<IUserData> = {
       username: testUser.username
@@ -127,7 +127,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(400)
   })
 
-  test("POST api/users (with invalid data)-> 400 error", async () => {
+  test("POST /api/users (with invalid data)-> 400 error", async () => {
     const testUser = getTestUserData()
     const invalidUser: Partial<IUserData> = {
       username: testUser.username
@@ -140,7 +140,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(400)
   })
 
-  test("PUT api/users/{id} -> IUser", async () => {
+  test("PUT /api/users/{id} -> IUser", async () => {
     await loadTestUsers();
     const testUser = getTestUser()
     const updatedUser = testUser;
@@ -156,7 +156,7 @@ describe("check jest config", () => {
     expect(data).toEqual(updatedUser);
   })
 
-  test("PUT api/users/{invalid-id} -> 400 error", async () => {
+  test("PUT /api/users/{invalid-id} -> 400 error", async () => {
     await loadTestUsers()
     const testUser = getTestUser()
     const updatedUser = testUser;
@@ -170,7 +170,7 @@ describe("check jest config", () => {
     expect(res.status).toBe(400)
   })
 
-  test("PUT api/users/{non-existent id} -> 404 error", async () => {
+  test("PUT /api/users/{non-existent id} -> 404 error", async () => {
     await loadTestUsers()
     const testUser = getTestUser()
     const updatedUser = testUser;
@@ -180,6 +180,38 @@ describe("check jest config", () => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
+    })
+    expect(res.status).toBe(404)
+  })
+
+  test("DELETE /api/users/{id} -> 204", async () => {
+    await loadTestUsers();
+    const testUser = getTestUser()
+    const recordLendth = db.records.length;
+    const res = await fetch(`${baseUrl}:${port}/api/users/${testUser.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    })
+    expect(res.status).toBe(204)
+    expect(db.records.length).toBe(recordLendth - 1);
+  })
+
+  test("DELETE /api/users/{invalid-id} -> 400 error", async () => {
+    await loadTestUsers()
+    const invalidId = "invalid-id"
+    const res = await fetch(`${baseUrl}:${port}/api/users/${invalidId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  test("DELETE /api/users/{non-existent id} -> 404 error", async () => {
+    await loadTestUsers()
+    const newUid = uuidv4()
+    const res = await fetch(`${baseUrl}:${port}/api/users/${newUid}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     })
     expect(res.status).toBe(404)
   })
