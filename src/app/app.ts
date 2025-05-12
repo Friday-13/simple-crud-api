@@ -4,6 +4,7 @@ import Server from "../server/server"
 import { isMulti } from "../utils/work-mode"
 
 export default class App {
+  server: Server | undefined
   constructor() {}
 
   start() {
@@ -11,9 +12,9 @@ export default class App {
       const cluster = new ClusterManager()
       cluster.start()
     } else {
-      const server = this.startSingleServer()
-      process.on("SIGINT", () => this.stop(server))
-      process.on("exit", () => this.stop(server))
+      this.server = this.startSingleServer()
+      process.on("SIGINT", () => this.stop())
+      process.on("exit", () => this.stop())
       process.on("SIGTERM", () => this.restart())
     }
   }
@@ -27,8 +28,10 @@ export default class App {
     return server
   }
 
-  stop(server: Server) {
-    server.close()
+  stop() {
+    if (this.server) {
+      this.server.close()
+    }
     console.log("Server stopped")
   }
 

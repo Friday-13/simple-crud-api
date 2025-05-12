@@ -13,7 +13,7 @@ const updateUser = new Route({
     const body = await getRequestBody(req)
     const userData = body as IUserData
 
-    const user = db.update({ id, ...userData })
+    const user = db.update({ ...userData, id })
     return { code: 200, message: user, res: res }
   },
 })
