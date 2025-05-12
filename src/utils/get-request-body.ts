@@ -1,4 +1,5 @@
 import { IncomingMessage } from "node:http"
+import HttpError from "../errors/http-error"
 const getRequestBody = async (req: IncomingMessage) => {
   return new Promise((resolve, reject) => {
     let body = ""
@@ -12,7 +13,7 @@ const getRequestBody = async (req: IncomingMessage) => {
         const json = JSON.parse(body)
         resolve(json)
       } catch {
-        reject(new Error("Invalid JSON"))
+        reject(new HttpError(400, "Invalid JSON"))
       }
     })
     req.on("error", (err) => reject(err))
