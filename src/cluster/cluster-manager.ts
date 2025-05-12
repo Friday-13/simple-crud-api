@@ -8,13 +8,17 @@ import { userRouter } from "../api/users"
 import getRequestBody from "../utils/get-request-body"
 import IPrimaryResponse from "./iprimary-response"
 import HttpError from "../errors/http-error"
+import os from "node:os";
 
 export default class ClusterManager {
   workerNumber: number
   primaryPort: number
   constructor() {
-    this.workerNumber = 3
+    this.workerNumber = os.cpus().length - 1;
     this.primaryPort = Number(process.env.PORT_NUMBER) || 4000
+    if (this.workerNumber < 1) {
+      throw new Error("Multi mode is not available")
+    }
   }
 
   start() {
@@ -27,7 +31,7 @@ export default class ClusterManager {
     } else {
       const workerPort = Number(process.env.WORKER_PORT)
       if (workerPort) {
-        console.log(`I'm worker ${workerPort}`)
+        console.log(`I'm worker. My port: ${workerPort}`)
         this.startWorkerServer(workerPort)
       }
     }
@@ -52,7 +56,7 @@ export default class ClusterManager {
             body: JSON.stringify(body),
           })
           const data = await workerResponse.json()
-          console.log("response from worker port: ", this.primaryPort + i)
+          console.log("Reply from worker on port: ", this.primaryPort + i)
           sendResponse({ res, code: workerResponse.status, message: data })
           i = i === this.workerNumber ? 1 : i + 1
         }
