@@ -2,6 +2,7 @@ import App from "../app/app"
 import { TDataBase } from "../db/create-db"
 import { IUser, IUserData } from "../db/user-repository"
 import getDb from "../utils/get-db"
+import { getTestUser, getTestUserData, loadTestUsers } from "./api-utils"
 import testUsers from "./test-users"
 import { v4 as uuidv4 } from "uuid"
 
@@ -23,28 +24,6 @@ describe("check jest config", () => {
     db.records = []
   })
 
-  const loadTestUsers = async () => {
-    db = await getDb()
-    db.records = testUsers
-  }
-
-  const getTestUser = (i: number = 3) => {
-    const user = testUsers[i]
-    if (user === undefined) throw new Error("Test user doesn't exist")
-    return user
-  }
-
-  const getTestUserData = (i: number = 3) => {
-    const user = testUsers[i]
-    if (user === undefined) throw new Error("Test user doesn't exist")
-
-    const data: IUserData = {
-      username: user.username,
-      hobbies: user.hobbies,
-      age: user.age,
-    }
-    return data
-  }
   test("GET /api/users -> []", async () => {
     const res = await fetch(`${baseUrl}:${port}/api/users`, {
       method: "GET",
