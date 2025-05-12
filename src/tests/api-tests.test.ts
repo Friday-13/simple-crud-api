@@ -52,7 +52,7 @@ describe("check jest config", () => {
     })
     const data = await res.json()
     expect(data).toEqual([])
-    expect(res.status).toEqual(200)
+    expect(res.status).toBe(200)
   })
 
   test("GET api/users -> IUser[]", async () => {
@@ -64,7 +64,7 @@ describe("check jest config", () => {
     const data = (await res.json()) as IUser[]
     expect(data.length).toBe(testUsers.length)
     expect(data[0]).toEqual(testUsers[0])
-    expect(res.status).toEqual(200)
+    expect(res.status).toBe(200)
   })
 
   test("GET api/users/{id} -> IUser", async () => {
@@ -77,7 +77,7 @@ describe("check jest config", () => {
     })
     const data = (await res.json()) as IUser
     expect(data).toEqual(testUser)
-    expect(res.status).toEqual(200)
+    expect(res.status).toBe(200)
   })
 
   test("GET api/users/{invalid-id} -> 400 error", async () => {
@@ -87,7 +87,7 @@ describe("check jest config", () => {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     })
-    expect(res.status).toEqual(400)
+    expect(res.status).toBe(400)
   })
 
   test("GET api/users/{non-existent id} -> 404 error", async () => {
@@ -97,7 +97,7 @@ describe("check jest config", () => {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     })
-    expect(res.status).toEqual(404)
+    expect(res.status).toBe(404)
   })
 
   test("POST api/users -> test user", async () => {
@@ -124,7 +124,7 @@ describe("check jest config", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(invalidUser),
     })
-    expect(res.status).toEqual(400)
+    expect(res.status).toBe(400)
   })
 
   test("POST api/users (with invalid data)-> 400 error", async () => {
@@ -137,6 +137,50 @@ describe("check jest config", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(invalidUser),
     })
-    expect(res.status).toEqual(400)
+    expect(res.status).toBe(400)
+  })
+
+  test("PUT api/users/{id} -> IUser", async () => {
+    await loadTestUsers();
+    const testUser = getTestUser()
+    const updatedUser = testUser;
+    updatedUser.username = "new_username"
+    const res = await fetch(`${baseUrl}:${port}/api/users/${testUser.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedUser),
+    })
+    const data = await res.json() as IUser;
+
+    expect(res.status).toBe(200)
+    expect(data).toEqual(updatedUser);
+  })
+
+  test("PUT api/users/{invalid-id} -> 400 error", async () => {
+    await loadTestUsers()
+    const testUser = getTestUser()
+    const updatedUser = testUser;
+    updatedUser.username = "new_username"
+    const invalidId = "invalid-id"
+    const res = await fetch(`${baseUrl}:${port}/api/users/${invalidId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedUser),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  test("PUT api/users/{non-existent id} -> 404 error", async () => {
+    await loadTestUsers()
+    const testUser = getTestUser()
+    const updatedUser = testUser;
+    updatedUser.username = "new_username"
+    const newUid = uuidv4()
+    const res = await fetch(`${baseUrl}:${port}/api/users/${newUid}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedUser),
+    })
+    expect(res.status).toBe(404)
   })
 })
