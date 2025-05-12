@@ -49,7 +49,6 @@ export default class ClusterManager {
             `http://${process.env.HOST}:${this.primaryPort + i}`
           )
           const body = await getRequestBody(req)
-          console.log(body)
           const workerResponse = await fetch(url.href, {
             method: req.method,
             headers: { "Content-Type": "application/json" },
